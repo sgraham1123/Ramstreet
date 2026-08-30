@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Article Schedule</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F2EFE6;
+    --paper-dim: #EAE6D9;
+    --ink: #23262B;
+    --ink-soft: #5A5751;
+    --rule: #D8D3C5;
+    --red: #B8452F;
+    --teal: #3D6B63;
+    --amber: #A8792A;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Masthead */
+  .masthead {
+    border-top: 3px solid var(--ink);
+    border-bottom: 1.5px solid var(--ink);
+    padding: 22px 0 16px;
+    margin-bottom: 22px;
+    text-align: center;
+  }
+  .masthead .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+  }
+  .masthead h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: clamp(32px, 6vw, 48px);
+    margin: 0;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+  .masthead h1[contenteditable="true"] {
+    outline: none;
+    border-bottom: 1px dashed var(--red);
+    cursor: text;
+  }
+  .masthead .sub {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-top: 8px;
+  }
+
+  /* Notices */
+  .notices {
+    border-left: 3px solid var(--red);
+    padding: 12px 18px;
+    margin-bottom: 32px;
+    background: var(--paper-dim);
+  }
+  .notices .label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--red);
+    margin-bottom: 6px;
+  }
+  .notices p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+  .notices textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--ink);
+    resize: vertical;
+    min-height: 60px;
+    outline: none;
+  }
+
+  /* Section header */
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 1.5px solid var(--ink);
+    padding-bottom: 8px;
+    margin-bottom: 4px;
+  }
+  .section-head h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    margin: 0;
+  }
+  .count {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+
+  /* Table */
+  .row {
+    display: grid;
+    grid-template-columns: 28px 1.3fr 1fr 90px auto;
+    gap: 14px;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .row.head-row {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    padding: 10px 0 8px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .row .idx {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+  }
+  .row .name {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 16px;
+  }
+  .row .due {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  .tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    display: inline-block;
+    width: fit-content;
+    white-space: nowrap;
+  }
+  .tag.upcoming { background: #EAE6D9; color: var(--ink-soft); }
+  .tag.soon { background: #F1E3CC; color: var(--amber); }
+  .tag.overdue { background: #F3DCD5; color: var(--red); }
+  .tag.posted { background: #DCE7E4; color: var(--teal); }
+
+  .row .actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--ink-soft);
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    padding: 4px 6px;
+  }
+  .icon-btn:hover { color: var(--red); }
+
+  .row input, .row select {
+    font-family: inherit;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    background: transparent;
+    padding: 4px 2px;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    width: 100%;
+  }
+  .row input:focus, .row select:focus { border-bottom: 1px solid var(--red); }
+
+  .empty {
+    padding: 40px 0;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 14px;
+  }
+
+  /* Add row */
+  .add-form {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr 90px auto;
+    gap: 14px;
+    align-items: center;
+    padding: 16px 0 6px;
+  }
+  .add-form input, .add-form select {
+    font-family: 'Inter', sans-serif;
+    padding: 8px 10px;
+    border: 1px solid var(--rule);
+    background: #fff;
+    border-radius: 2px;
+    font-size: 14px;
+    outline: none;
+  }
+  .add-form input:focus, .add-form select:focus { border-color: var(--red); }
+  .btn {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 13px;
+    padding: 9px 14px;
+    border-radius: 2px;
+    border: 1px solid var(--ink);
+    background: var(--ink);
+    color: var(--paper);
+    cursor: pointer;
+  }
+  .btn:hover { background: #000; }
+  .btn.ghost {
+    background: transparent;
+    color: var(--ink);
+  }
+  .btn.ghost:hover { background: var(--paper-dim); }
+
+  /* Footer / edit toggle */
+  .footer-bar {
+    margin-top: 46px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .mode-toggle {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--ink-soft);
+    background: none;
+    border: 1px solid var(--rule);
+    padding: 6px 12px;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  .mode-toggle:hover { border-color: var(--ink); color: var(--ink); }
+  .mode-toggle.active { border-color: var(--red); color: var(--red); }
+
+  .save-note {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--ink-soft);
+    min-height: 16px;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 80px 0;
+    color: var(--ink-soft);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+  }
+
+  @media (max-width: 560px) {
+    .row { grid-template-columns: 20px 1fr 80px; row-gap: 6px; }
+    .row .due-col, .row .actions { grid-column: 2 / 4; }
+    .row.head-row { display: none; }
+    .add-form { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="loading">Loading schedule…</div>
+</div>
+
+<script>
+const STORAGE_KEY = 'schedule-doc';
+const EDIT_PASSCODE = 'editor'; // officers: change this word, then re-share the page
+
+let state = {
+  clubName: 'The Weekly Dispatch',
+  notice: 'Welcome! Find your next article due date below.',
+  entries: []
+};
+let editing = false;
+let saveTimer = null;
+
+const app = document.getElementById('app');
+
+function statusFor(dueStr) {
+  if (!dueStr) return { label: 'unscheduled', cls: 'upcoming' };
+  const due = new Date(dueStr + 'T00:00:00');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const diffDays = Math.round((due - today) / 86400000);
+  if (diffDays < 0) return { label: 'overdue', cls: 'overdue' };
+  if (diffDays === 0) return { label: 'due today', cls: 'soon' };
+  if (diffDays <= 3) return { label: 'due soon', cls: 'soon' };
+  return { label: 'upcoming', cls: 'upcoming' };
+}
+
+function formatDate(dueStr) {
+  if (!dueStr) return '—';
+  const d = new Date(dueStr + 'T00:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function todayLabel() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+async function loadState() {
+  try {
+    const result = await window.storage.get(STORAGE_KEY, true);
+    if (result && result.value) {
+      const parsed = JSON.parse(result.value);
+      state = { clubName: parsed.clubName || state.clubName, notice: parsed.notice || '', entries: parsed.entries || [] };
+    }
+  } catch (e) {
+    // no existing data yet — use defaults
+  }
+  render();
+}
+
+async function saveState() {
+  const noteEl = document.getElementById('saveNote');
+  try {
+    await window.storage.set(STORAGE_KEY, JSON.stringify(state), true);
+    if (noteEl) {
+      noteEl.textContent = 'Saved just now';
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => { if (noteEl) noteEl.textContent = ''; }, 2000);
+    }
+  } catch (e) {
+    if (noteEl) noteEl.textContent = 'Could not save — try again';
+  }
+}
+
+function debounceSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveState, 500);
+}
+
+function addEntry(name, due, status) {
+  state.entries.push({ id: Date.now().toString(36), name, due, status: status || 'assigned' });
+  state.entries.sort((a,b) => (a.due || '9999').localeCompare(b.due || '9999'));
+  saveState();
+  render();
+}
+
+function removeEntry(id) {
+  state.entries = state.entries.filter(e => e.id !== id);
+  saveState();
+  render();
+}
+
+function updateEntry(id, field, value) {
+  const e = state.entries.find(e => e.id === id);
+  if (e) e[field] = value;
+  debounceSave();
+}
+
+function toggleEdit() {
+  if (!editing) {
+    const code = prompt('Officer passcode:');
+    if (code !== EDIT_PASSCODE) {
+      if (code !== null) alert('That passcode isn\'t right.');
+      return;
+    }
+  }
+  editing = !editing;
+  render();
+}
+
+function render() {
+  const rows = state.entries.map((e, i) => {
+    const st = e.status === 'posted' ? { label: 'posted', cls: 'posted' } : statusFor(e.due);
+    if (editing) {
+      return `
+        <div class="row">
+          <div class="idx">${i + 1}</div>
+          <input value="${escapeAttr(e.name)}" placeholder="Name" oninput="updateEntry('${e.id}','name',this.value)">
+          <input type="date" value="${e.due || ''}" oninput="updateEntry('${e.id}','due',this.value)">
+          <select onchange="updateEntry('${e.id}','status',this.value)">
+            <option value="assigned" ${e.status !== 'posted' ? 'selected' : ''}>Assigned</option>
+            <option value="posted" ${e.status === 'posted' ? 'selected' : ''}>Posted</option>
+          </select>
+          <div class="actions">
+            <button class="icon-btn" onclick="removeEntry('${e.id}')">Remove</button>
+          </div>
+        </div>`;
+    }
+    return `
+      <div class="row">
+        <div class="idx">${i + 1}</div>
+        <div class="name">${escapeHtml(e.name) || '—'}</div>
+        <div class="due">${formatDate(e.due)}</div>
+        <div><span class="tag ${st.cls}">${st.label}</span></div>
+        <div></div>
+      </div>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="masthead">
+      <div class="eyebrow">CLUB SCHEDULE</div>
+      <h1 ${editing ? 'contenteditable="true" onblur="updateClubName(this.innerText)"' : ''}>${escapeHtml(state.clubName)}</h1>
+      <div class="sub">${todayLabel()}</div>
+    </div>
+
+    <div class="notices">
+      <div class="label">NOTICES</div>
+      ${editing
+        ? `<textarea id="noticeInput" oninput="debounceUpdateNotice(this.value)">${escapeHtml(state.notice)}</textarea>`
+        : `<p>${escapeHtml(state.notice) || 'No notices right now.'}</p>`}
+    </div>
+
+    <div class="section-head">
+      <h2>Posting Schedule</h2>
+      <div class="count">${state.entries.length} ${state.entries.length === 1 ? 'entry' : 'entries'}</div>
+    </div>
+
+    <div class="row head-row">
+      <div></div><div>Member</div><div>Due</div><div>Status</div><div></div>
+    </div>
+
+    ${state.entries.length ? rows : `<div class="empty">${editing ? 'Add the first assignment below.' : 'No assignments posted yet.'}</div>`}
+
+    ${editing ? `
+      <div class="add-form">
+        <input id="newName" placeholder="Member name">
+        <input id="newDue" type="date">
+        <select id="newStatus">
+          <option value="assigned" selected>Assigned</option>
+          <option value="posted">Posted</option>
+        </select>
+        <button class="btn" onclick="handleAdd()">Add row</button>
+      </div>
+    ` : ''}
+
+    <div class="footer-bar">
+      <button class="mode-toggle ${editing ? 'active' : ''}" onclick="toggleEdit()">${editing ? 'Done editing' : 'Officer edit'}</button>
+      <div class="save-note" id="saveNote"></div>
+    </div>
+  `;
+}
+
+function handleAdd() {
+  const name = document.getElementById('newName').value.trim();
+  const due = document.getElementById('newDue').value;
+  const status = document.getElementById('newStatus').value;
+  if (!name) { alert('Enter a name first.'); return; }
+  addEntry(name, due, status);
+}
+
+function updateClubName(text) {
+  state.clubName = text.trim() || state.clubName;
+  saveState();
+}
+
+let noticeTimer = null;
+function debounceUpdateNotice(value) {
+  state.notice = value;
+  clearTimeout(noticeTimer);
+  noticeTimer = setTimeout(saveState, 500);
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+function escapeAttr(str) {
+  return (str || '').replace(/"/g, '&quot;');
+}
+
+loadState();
+</script>
+</body>
+</html>
