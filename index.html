@@ -3,323 +3,282 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Article Schedule</title>
+<title>Ram Street — Club Hub</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #F2EFE6;
-    --paper-dim: #EAE6D9;
-    --ink: #23262B;
-    --ink-soft: #5A5751;
-    --rule: #D8D3C5;
-    --red: #B8452F;
-    --teal: #3D6B63;
-    --amber: #A8792A;
+    --green-deep: #1F4D3D;
+    --green-bright: #3F8361;
+    --green-pale: #E7F0EA;
+    --white: #FFFFFF;
+    --off-white: #F6F5F1;
+    --gray-100: #E7E6E1;
+    --gray-300: #C9C7BF;
+    --gray-500: #8B8F89;
+    --ink: #22281F;
+    --warn: #A6503B;
   }
 
   * { box-sizing: border-box; }
-
   body {
     margin: 0;
-    background: var(--paper);
+    background: var(--off-white);
     color: var(--ink);
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
   }
 
-  .wrap {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 40px 24px 80px;
-  }
+  .app-shell { display: flex; min-height: 100vh; }
 
-  /* Masthead */
-  .masthead {
-    border-top: 3px solid var(--ink);
-    border-bottom: 1.5px solid var(--ink);
-    padding: 22px 0 16px;
-    margin-bottom: 22px;
-    text-align: center;
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--green-deep);
+    color: var(--white);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
   }
-  .masthead .eyebrow {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.04em;
-    color: var(--ink-soft);
-    margin-bottom: 10px;
-  }
-  .masthead h1 {
+  .brand {
     font-family: 'Fraunces', serif;
     font-weight: 700;
-    font-size: clamp(32px, 6vw, 48px);
-    margin: 0;
-    line-height: 1.05;
-    letter-spacing: -0.01em;
+    font-size: 20px;
+    color: var(--white);
+    margin-bottom: 4px;
   }
-  .masthead h1[contenteditable="true"] {
-    outline: none;
-    border-bottom: 1px dashed var(--red);
-    cursor: text;
-  }
-  .masthead .sub {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: var(--ink-soft);
-    margin-top: 8px;
+  .brand-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 22px;
+    letter-spacing: 0.02em;
   }
 
-  /* Notices */
-  .notices {
-    border-left: 3px solid var(--red);
-    padding: 12px 18px;
-    margin-bottom: 32px;
-    background: var(--paper-dim);
+  .section-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 20px;
   }
-  .notices .label {
-    font-family: 'IBM Plex Mono', monospace;
+  .section-tab {
+    background: none;
+    border: none;
+    text-align: left;
+    color: rgba(255,255,255,0.9);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .section-tab:hover { background: rgba(255,255,255,0.08); }
+  .section-tab.active { background: rgba(255,255,255,0.14); color: var(--white); }
+
+  .sidebar-divider {
+    border-top: 1px solid rgba(255,255,255,0.15);
+    margin: 4px 0 14px;
+  }
+
+  .month-list { display: flex; flex-direction: column; gap: 2px; }
+  .month-tab {
+    background: none;
+    border: none;
+    text-align: left;
+    color: rgba(255,255,255,0.72);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 12px 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .month-tab:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+  .month-tab.active { background: var(--green-bright); color: var(--white); }
+  .month-tab .n {
+    display: inline-block;
+    min-width: 16px;
     font-size: 11px;
-    color: var(--red);
-    margin-bottom: 6px;
+    color: rgba(255,255,255,0.5);
+    margin-left: 6px;
   }
-  .notices p {
-    margin: 0;
-    font-size: 15px;
-    line-height: 1.55;
-    color: var(--ink);
-    white-space: pre-wrap;
+  .month-tab.active .n { color: rgba(255,255,255,0.85); }
+
+  /* Main */
+  .main { flex: 1; padding: 32px 40px 60px; max-width: 1080px; }
+  .main-header { margin-bottom: 20px; }
+  .main-header h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 26px;
+    margin: 0 0 4px;
+  }
+  .main-header .sub { font-size: 13px; color: var(--gray-500); }
+
+  .notices {
+    background: var(--green-pale);
+    border-left: 3px solid var(--green-bright);
+    padding: 10px 16px;
+    margin-bottom: 24px;
+    border-radius: 0 4px 4px 0;
   }
   .notices textarea {
     width: 100%;
     border: none;
     background: transparent;
     font-family: 'Inter', sans-serif;
-    font-size: 15px;
-    line-height: 1.55;
+    font-size: 14px;
+    line-height: 1.5;
     color: var(--ink);
     resize: vertical;
-    min-height: 60px;
+    min-height: 40px;
     outline: none;
-  }
-
-  /* Section header */
-  .section-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    border-bottom: 1.5px solid var(--ink);
-    padding-bottom: 8px;
-    margin-bottom: 4px;
-  }
-  .section-head h2 {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 22px;
-    margin: 0;
-  }
-  .count {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: var(--ink-soft);
   }
 
   /* Table */
-  .row {
-    display: grid;
-    grid-template-columns: 28px 1.3fr 1fr 90px auto;
-    gap: 14px;
-    align-items: center;
-    padding: 14px 0;
-    border-bottom: 1px solid var(--rule);
+  .table-wrap {
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    border-radius: 8px;
+    overflow: hidden;
   }
-  .row.head-row {
-    font-family: 'IBM Plex Mono', monospace;
+  .grid-row { display: grid; align-items: center; }
+  .grid-row.schedule { grid-template-columns: 28px 1.1fr 1.1fr 130px 1fr 110px 32px; }
+  .grid-row.docs { grid-template-columns: 28px 1.2fr 1fr 1.3fr 32px; }
+
+  .grid-row.head {
+    background: var(--off-white);
+    border-bottom: 1px solid var(--gray-100);
     font-size: 11px;
-    color: var(--ink-soft);
-    padding: 10px 0 8px;
-    border-bottom: 1px solid var(--ink);
-  }
-  .row .idx {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: var(--ink-soft);
-  }
-  .row .name {
-    font-family: 'Fraunces', serif;
+    color: var(--gray-500);
     font-weight: 600;
-    font-size: 16px;
+    padding: 10px 12px;
   }
-  .row .due {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    color: var(--ink-soft);
-  }
-  .tag {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px;
-    padding: 3px 8px;
-    border-radius: 3px;
-    display: inline-block;
-    width: fit-content;
-    white-space: nowrap;
-  }
-  .tag.upcoming { background: #EAE6D9; color: var(--ink-soft); }
-  .tag.soon { background: #F1E3CC; color: var(--amber); }
-  .tag.overdue { background: #F3DCD5; color: var(--red); }
-  .tag.posted { background: #DCE7E4; color: var(--teal); }
-
-  .row .actions { display: flex; gap: 8px; justify-content: flex-end; }
-  .icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--ink-soft);
-    font-size: 13px;
+  .grid-row.entry { border-bottom: 1px solid var(--gray-100); padding: 6px 12px; }
+  .grid-row.entry:hover { background: var(--off-white); }
+  .grid-row .idx { font-size: 12px; color: var(--gray-500); }
+  .grid-row input, .grid-row textarea {
     font-family: 'Inter', sans-serif;
-    padding: 4px 6px;
-  }
-  .icon-btn:hover { color: var(--red); }
-
-  .row input, .row select {
-    font-family: inherit;
-    border: none;
-    border-bottom: 1px solid var(--rule);
-    background: transparent;
-    padding: 4px 2px;
     font-size: 14px;
     color: var(--ink);
+    border: none;
+    background: transparent;
+    padding: 8px 6px;
     outline: none;
     width: 100%;
+    border-radius: 4px;
   }
-  .row input:focus, .row select:focus { border-bottom: 1px solid var(--red); }
+  .grid-row input:focus { background: var(--green-pale); }
+  .grid-row input.link-input { color: var(--green-bright); }
 
-  .empty {
-    padding: 40px 0;
-    text-align: center;
-    color: var(--ink-soft);
-    font-size: 14px;
-  }
-
-  /* Add row */
-  .add-form {
-    display: grid;
-    grid-template-columns: 1.3fr 1fr 90px auto;
-    gap: 14px;
-    align-items: center;
-    padding: 16px 0 6px;
-  }
-  .add-form input, .add-form select {
+  .status-btn {
     font-family: 'Inter', sans-serif;
-    padding: 8px 10px;
-    border: 1px solid var(--rule);
-    background: #fff;
-    border-radius: 2px;
-    font-size: 14px;
-    outline: none;
-  }
-  .add-form input:focus, .add-form select:focus { border-color: var(--red); }
-  .btn {
-    font-family: 'Inter', sans-serif;
-    font-weight: 500;
-    font-size: 13px;
-    padding: 9px 14px;
-    border-radius: 2px;
-    border: 1px solid var(--ink);
-    background: var(--ink);
-    color: var(--paper);
-    cursor: pointer;
-  }
-  .btn:hover { background: #000; }
-  .btn.ghost {
-    background: transparent;
-    color: var(--ink);
-  }
-  .btn.ghost:hover { background: var(--paper-dim); }
-
-  /* Footer / edit toggle */
-  .footer-bar {
-    margin-top: 46px;
-    padding-top: 16px;
-    border-top: 1px solid var(--rule);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .mode-toggle {
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    color: var(--ink-soft);
-    background: none;
-    border: 1px solid var(--rule);
-    padding: 6px 12px;
-    border-radius: 2px;
-    cursor: pointer;
-  }
-  .mode-toggle:hover { border-color: var(--ink); color: var(--ink); }
-  .mode-toggle.active { border-color: var(--red); color: var(--red); }
-
-  .save-note {
-    font-family: 'IBM Plex Mono', monospace;
     font-size: 11px;
-    color: var(--ink-soft);
-    min-height: 16px;
+    font-weight: 600;
+    padding: 5px 9px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
   }
+  .status-btn.upcoming { background: var(--gray-100); color: var(--gray-500); }
+  .status-btn.soon { background: #EFE7D0; color: #8A6A1F; }
+  .status-btn.overdue { background: #F1DAD3; color: var(--warn); }
+  .status-btn.posted { background: var(--green-pale); color: var(--green-deep); }
 
-  .loading {
-    text-align: center;
-    padding: 80px 0;
-    color: var(--ink-soft);
-    font-family: 'IBM Plex Mono', monospace;
+  .del-btn {
+    background: none;
+    border: none;
+    color: var(--gray-300);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .del-btn:hover { color: var(--warn); }
+
+  .empty-row { padding: 34px 0; text-align: center; color: var(--gray-500); font-size: 13px; }
+
+  .add-row { padding: 12px; border-top: 1px dashed var(--gray-300); }
+  .add-btn {
+    background: none;
+    border: none;
+    color: var(--green-bright);
+    font-family: 'Inter', sans-serif;
     font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 4px;
   }
+  .add-btn:hover { text-decoration: underline; }
 
-  @media (max-width: 560px) {
-    .row { grid-template-columns: 20px 1fr 80px; row-gap: 6px; }
-    .row .due-col, .row .actions { grid-column: 2 / 4; }
-    .row.head-row { display: none; }
-    .add-form { grid-template-columns: 1fr; }
+  .save-note { font-size: 11px; color: var(--gray-500); margin-top: 10px; min-height: 14px; }
+  .loading { text-align: center; padding: 100px 0; color: var(--gray-500); font-size: 13px; }
+
+  @media (max-width: 820px) {
+    .app-shell { flex-direction: column; }
+    .sidebar { width: 100%; padding: 16px; }
+    .brand-sub { margin-bottom: 14px; }
+    .section-nav { flex-direction: row; margin-bottom: 10px; }
+    .sidebar-divider { display: none; }
+    .month-list { flex-direction: row; overflow-x: auto; }
+    .month-tab { padding: 7px 10px; }
+    .main { padding: 24px 18px 60px; }
+    .grid-row.schedule { grid-template-columns: 20px 1fr 1fr 100px 90px 90px 24px; font-size: 12px; }
+    .grid-row.docs { grid-template-columns: 18px 1fr 1fr 1fr 24px; font-size: 12px; }
   }
 </style>
 </head>
 <body>
-<div class="wrap" id="app">
-  <div class="loading">Loading schedule…</div>
+<div class="app-shell" id="app">
+  <div class="loading">Loading…</div>
 </div>
 
 <script>
-const STORAGE_KEY = 'schedule-doc';
-const EDIT_PASSCODE = 'editor'; // officers: change this word, then re-share the page
+const STORAGE_KEY = 'schedule-doc-v3';
+
+const MONTHS = [
+  { key: '2026-09', label: 'September', year: 2026 },
+  { key: '2026-10', label: 'October', year: 2026 },
+  { key: '2026-11', label: 'November', year: 2026 },
+  { key: '2026-12', label: 'December', year: 2026 },
+  { key: '2027-01', label: 'January', year: 2027 },
+  { key: '2027-02', label: 'February', year: 2027 },
+  { key: '2027-03', label: 'March', year: 2027 },
+  { key: '2027-04', label: 'April', year: 2027 },
+  { key: '2027-05', label: 'May', year: 2027 },
+];
 
 let state = {
-  clubName: 'The Weekly Dispatch',
-  notice: 'Welcome! Find your next article due date below.',
-  entries: []
+  notice: 'Welcome! Add your topic, due date, and article link below.',
+  entries: [],
+  docs: []
 };
-let editing = false;
+let activeSection = 'schedule'; // 'schedule' | 'docs'
+let activeMonth = defaultMonth();
 let saveTimer = null;
+let noticeTimer = null;
 
 const app = document.getElementById('app');
 
-function statusFor(dueStr) {
-  if (!dueStr) return { label: 'unscheduled', cls: 'upcoming' };
-  const due = new Date(dueStr + 'T00:00:00');
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  const diffDays = Math.round((due - today) / 86400000);
-  if (diffDays < 0) return { label: 'overdue', cls: 'overdue' };
-  if (diffDays === 0) return { label: 'due today', cls: 'soon' };
-  if (diffDays <= 3) return { label: 'due soon', cls: 'soon' };
-  return { label: 'upcoming', cls: 'upcoming' };
+function defaultMonth() {
+  const now = new Date();
+  const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const found = MONTHS.find(m => m.key === key);
+  return found ? found.key : MONTHS[0].key;
 }
 
-function formatDate(dueStr) {
-  if (!dueStr) return '—';
-  const d = new Date(dueStr + 'T00:00:00');
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-}
+function monthKeyOf(dueStr) { return dueStr ? dueStr.slice(0, 7) : null; }
 
-function todayLabel() {
-  return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+function statusFor(entry) {
+  if (entry.posted) return { label: 'Posted', cls: 'posted' };
+  if (!entry.due) return { label: 'No date', cls: 'upcoming' };
+  const due = new Date(entry.due + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((due - today) / 86400000);
+  if (diff < 0) return { label: 'Overdue', cls: 'overdue' };
+  if (diff <= 3) return { label: 'Due soon', cls: 'soon' };
+  return { label: 'Upcoming', cls: 'upcoming' };
 }
 
 async function loadState() {
@@ -327,164 +286,169 @@ async function loadState() {
     const result = await window.storage.get(STORAGE_KEY, true);
     if (result && result.value) {
       const parsed = JSON.parse(result.value);
-      state = { clubName: parsed.clubName || state.clubName, notice: parsed.notice || '', entries: parsed.entries || [] };
+      state = {
+        notice: parsed.notice || state.notice,
+        entries: parsed.entries || [],
+        docs: parsed.docs || []
+      };
     }
-  } catch (e) {
-    // no existing data yet — use defaults
-  }
+  } catch (e) { /* first run, use defaults */ }
   render();
 }
 
 async function saveState() {
-  const noteEl = document.getElementById('saveNote');
   try {
     await window.storage.set(STORAGE_KEY, JSON.stringify(state), true);
-    if (noteEl) {
-      noteEl.textContent = 'Saved just now';
-      clearTimeout(saveTimer);
-      saveTimer = setTimeout(() => { if (noteEl) noteEl.textContent = ''; }, 2000);
-    }
+    flashSave('Saved');
   } catch (e) {
-    if (noteEl) noteEl.textContent = 'Could not save — try again';
+    flashSave('Could not save — try again');
   }
 }
-
+function flashSave(msg) {
+  const el = document.getElementById('saveNote');
+  if (!el) return;
+  el.textContent = msg;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { if (el) el.textContent = ''; }, 1800);
+}
 function debounceSave() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(saveState, 500);
 }
 
-function addEntry(name, due, status) {
-  state.entries.push({ id: Date.now().toString(36), name, due, status: status || 'assigned' });
-  state.entries.sort((a,b) => (a.due || '9999').localeCompare(b.due || '9999'));
-  saveState();
-  render();
-}
+function setSection(section) { activeSection = section; render(); }
+function setActiveMonth(key) { activeMonth = key; render(); }
 
-function removeEntry(id) {
-  state.entries = state.entries.filter(e => e.id !== id);
-  saveState();
-  render();
+/* Schedule entries */
+function addEntry() {
+  const monthInfo = MONTHS.find(m => m.key === activeMonth);
+  state.entries.push({ id: 's' + Date.now().toString(36), name: '', topic: '', due: `${monthInfo.key}-01`, link: '', posted: false });
+  saveState(); render();
 }
-
+function removeEntry(id) { state.entries = state.entries.filter(e => e.id !== id); saveState(); render(); }
 function updateEntry(id, field, value) {
   const e = state.entries.find(e => e.id === id);
-  if (e) e[field] = value;
+  if (!e) return;
+  e[field] = value;
+  if (field === 'due') { saveState(); render(); } else debounceSave();
+}
+function toggleStatus(id) {
+  const e = state.entries.find(e => e.id === id);
+  if (!e) return;
+  e.posted = !e.posted; saveState(); render();
+}
+
+/* Docs */
+function addDoc() {
+  state.docs.push({ id: 'd' + Date.now().toString(36), title: '', link: '', notes: '' });
+  saveState(); render();
+}
+function removeDoc(id) { state.docs = state.docs.filter(d => d.id !== id); saveState(); render(); }
+function updateDoc(id, field, value) {
+  const d = state.docs.find(d => d.id === id);
+  if (!d) return;
+  d[field] = value;
   debounceSave();
 }
 
-function toggleEdit() {
-  if (!editing) {
-    const code = prompt('Officer passcode:');
-    if (code !== EDIT_PASSCODE) {
-      if (code !== null) alert('That passcode isn\'t right.');
-      return;
-    }
-  }
-  editing = !editing;
-  render();
-}
-
-function render() {
-  const rows = state.entries.map((e, i) => {
-    const st = e.status === 'posted' ? { label: 'posted', cls: 'posted' } : statusFor(e.due);
-    if (editing) {
-      return `
-        <div class="row">
-          <div class="idx">${i + 1}</div>
-          <input value="${escapeAttr(e.name)}" placeholder="Name" oninput="updateEntry('${e.id}','name',this.value)">
-          <input type="date" value="${e.due || ''}" oninput="updateEntry('${e.id}','due',this.value)">
-          <select onchange="updateEntry('${e.id}','status',this.value)">
-            <option value="assigned" ${e.status !== 'posted' ? 'selected' : ''}>Assigned</option>
-            <option value="posted" ${e.status === 'posted' ? 'selected' : ''}>Posted</option>
-          </select>
-          <div class="actions">
-            <button class="icon-btn" onclick="removeEntry('${e.id}')">Remove</button>
-          </div>
-        </div>`;
-    }
-    return `
-      <div class="row">
-        <div class="idx">${i + 1}</div>
-        <div class="name">${escapeHtml(e.name) || '—'}</div>
-        <div class="due">${formatDate(e.due)}</div>
-        <div><span class="tag ${st.cls}">${st.label}</span></div>
-        <div></div>
-      </div>`;
-  }).join('');
-
-  app.innerHTML = `
-    <div class="masthead">
-      <div class="eyebrow">CLUB SCHEDULE</div>
-      <h1 ${editing ? 'contenteditable="true" onblur="updateClubName(this.innerText)"' : ''}>${escapeHtml(state.clubName)}</h1>
-      <div class="sub">${todayLabel()}</div>
-    </div>
-
-    <div class="notices">
-      <div class="label">NOTICES</div>
-      ${editing
-        ? `<textarea id="noticeInput" oninput="debounceUpdateNotice(this.value)">${escapeHtml(state.notice)}</textarea>`
-        : `<p>${escapeHtml(state.notice) || 'No notices right now.'}</p>`}
-    </div>
-
-    <div class="section-head">
-      <h2>Posting Schedule</h2>
-      <div class="count">${state.entries.length} ${state.entries.length === 1 ? 'entry' : 'entries'}</div>
-    </div>
-
-    <div class="row head-row">
-      <div></div><div>Member</div><div>Due</div><div>Status</div><div></div>
-    </div>
-
-    ${state.entries.length ? rows : `<div class="empty">${editing ? 'Add the first assignment below.' : 'No assignments posted yet.'}</div>`}
-
-    ${editing ? `
-      <div class="add-form">
-        <input id="newName" placeholder="Member name">
-        <input id="newDue" type="date">
-        <select id="newStatus">
-          <option value="assigned" selected>Assigned</option>
-          <option value="posted">Posted</option>
-        </select>
-        <button class="btn" onclick="handleAdd()">Add row</button>
-      </div>
-    ` : ''}
-
-    <div class="footer-bar">
-      <button class="mode-toggle ${editing ? 'active' : ''}" onclick="toggleEdit()">${editing ? 'Done editing' : 'Officer edit'}</button>
-      <div class="save-note" id="saveNote"></div>
-    </div>
-  `;
-}
-
-function handleAdd() {
-  const name = document.getElementById('newName').value.trim();
-  const due = document.getElementById('newDue').value;
-  const status = document.getElementById('newStatus').value;
-  if (!name) { alert('Enter a name first.'); return; }
-  addEntry(name, due, status);
-}
-
-function updateClubName(text) {
-  state.clubName = text.trim() || state.clubName;
-  saveState();
-}
-
-let noticeTimer = null;
 function debounceUpdateNotice(value) {
   state.notice = value;
   clearTimeout(noticeTimer);
   noticeTimer = setTimeout(saveState, 500);
 }
 
-function escapeHtml(str) {
-  if (!str) return '';
-  const d = document.createElement('div');
-  d.textContent = str;
-  return d.innerHTML;
+function escAttr(str) { return (str || '').replace(/"/g, '&quot;'); }
+
+function renderScheduleBody() {
+  const monthEntries = state.entries.filter(e => monthKeyOf(e.due) === activeMonth);
+  const monthInfo = MONTHS.find(m => m.key === activeMonth);
+
+  const rows = monthEntries.map((e, i) => {
+    const st = statusFor(e);
+    return `
+      <div class="grid-row schedule entry">
+        <div class="idx">${i + 1}</div>
+        <input value="${escAttr(e.name)}" placeholder="Member name" oninput="updateEntry('${e.id}','name',this.value)">
+        <input value="${escAttr(e.topic)}" placeholder="Topic" oninput="updateEntry('${e.id}','topic',this.value)">
+        <input type="date" value="${e.due || ''}" onchange="updateEntry('${e.id}','due',this.value)">
+        <input class="link-input" value="${escAttr(e.link)}" placeholder="Paste article link" oninput="updateEntry('${e.id}','link',this.value)">
+        <button class="status-btn ${st.cls}" onclick="toggleStatus('${e.id}')">${st.label}</button>
+        <button class="del-btn" onclick="removeEntry('${e.id}')" title="Remove row">×</button>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="main-header">
+      <h1>${monthInfo.label} ${monthInfo.year}</h1>
+      <div class="sub">${monthEntries.length} ${monthEntries.length === 1 ? 'article' : 'articles'} scheduled</div>
+    </div>
+    <div class="notices">
+      <textarea oninput="debounceUpdateNotice(this.value)">${state.notice}</textarea>
+    </div>
+    <div class="table-wrap">
+      <div class="grid-row schedule head">
+        <div></div><div>Member</div><div>Topic</div><div>Due date</div><div>Article</div><div>Status</div><div></div>
+      </div>
+      ${monthEntries.length ? rows : `<div class="empty-row">No articles scheduled for ${monthInfo.label} yet.</div>`}
+      <div class="add-row"><button class="add-btn" onclick="addEntry()">+ Add article</button></div>
+    </div>
+    <div class="save-note" id="saveNote"></div>
+  `;
 }
-function escapeAttr(str) {
-  return (str || '').replace(/"/g, '&quot;');
+
+function renderDocsBody() {
+  const rows = state.docs.map((d, i) => `
+    <div class="grid-row docs entry">
+      <div class="idx">${i + 1}</div>
+      <input value="${escAttr(d.title)}" placeholder="Document title" oninput="updateDoc('${d.id}','title',this.value)">
+      <input class="link-input" value="${escAttr(d.link)}" placeholder="Paste link" oninput="updateDoc('${d.id}','link',this.value)">
+      <input value="${escAttr(d.notes)}" placeholder="Notes" oninput="updateDoc('${d.id}','notes',this.value)">
+      <button class="del-btn" onclick="removeDoc('${d.id}')" title="Remove row">×</button>
+    </div>`).join('');
+
+  return `
+    <div class="main-header">
+      <h1>Important Docs &amp; References</h1>
+      <div class="sub">${state.docs.length} ${state.docs.length === 1 ? 'document' : 'documents'} linked</div>
+    </div>
+    <div class="table-wrap">
+      <div class="grid-row docs head">
+        <div></div><div>Title</div><div>Link</div><div>Notes</div><div></div>
+      </div>
+      ${state.docs.length ? rows : `<div class="empty-row">No documents added yet.</div>`}
+      <div class="add-row"><button class="add-btn" onclick="addDoc()">+ Add document</button></div>
+    </div>
+    <div class="save-note" id="saveNote"></div>
+  `;
+}
+
+function render() {
+  const sidebarTabs = MONTHS.map(m => {
+    const count = state.entries.filter(e => monthKeyOf(e.due) === m.key).length;
+    return `<button class="month-tab ${m.key === activeMonth ? 'active' : ''}" onclick="setActiveMonth('${m.key}')">
+      ${m.label} '${String(m.year).slice(2)}<span class="n">${count || ''}</span>
+    </button>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="sidebar">
+      <div class="brand">Ram Street</div>
+      <div class="brand-sub">Club Hub</div>
+
+      <div class="section-nav">
+        <button class="section-tab ${activeSection === 'schedule' ? 'active' : ''}" onclick="setSection('schedule')">Article Scheduling</button>
+        <button class="section-tab ${activeSection === 'docs' ? 'active' : ''}" onclick="setSection('docs')">Important Docs / References</button>
+      </div>
+
+      ${activeSection === 'schedule' ? `
+        <div class="sidebar-divider"></div>
+        <div class="month-list">${sidebarTabs}</div>
+      ` : ''}
+    </div>
+    <div class="main">
+      ${activeSection === 'schedule' ? renderScheduleBody() : renderDocsBody()}
+    </div>
+  `;
 }
 
 loadState();
