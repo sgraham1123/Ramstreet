@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ram Street — Club Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-deep: #1F4D3D;
+    --green-bright: #3F8361;
+    --green-pale: #E7F0EA;
+    --white: #FFFFFF;
+    --off-white: #F6F5F1;
+    --gray-100: #E7E6E1;
+    --gray-300: #C9C7BF;
+    --gray-500: #8B8F89;
+    --ink: #22281F;
+    --warn: #A6503B;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--off-white);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app-shell { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: var(--green-deep);
+    color: var(--white);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  .brand {
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--white);
+    margin-bottom: 4px;
+  }
+  .brand-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 22px;
+    letter-spacing: 0.02em;
+  }
+
+  .section-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-bottom: 20px;
+  }
+  .section-tab {
+    background: none;
+    border: none;
+    text-align: left;
+    color: rgba(255,255,255,0.9);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 10px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .section-tab:hover { background: rgba(255,255,255,0.08); }
+  .section-tab.active { background: rgba(255,255,255,0.14); color: var(--white); }
+
+  .sidebar-divider {
+    border-top: 1px solid rgba(255,255,255,0.15);
+    margin: 4px 0 14px;
+  }
+
+  .month-list { display: flex; flex-direction: column; gap: 2px; }
+  .month-tab {
+    background: none;
+    border: none;
+    text-align: left;
+    color: rgba(255,255,255,0.72);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 8px 12px 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  .month-tab:hover { background: rgba(255,255,255,0.08); color: var(--white); }
+  .month-tab.active { background: var(--green-bright); color: var(--white); }
+  .month-tab .n {
+    display: inline-block;
+    min-width: 16px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    margin-left: 6px;
+  }
+  .month-tab.active .n { color: rgba(255,255,255,0.85); }
+
+  /* Main */
+  .main { flex: 1; padding: 32px 40px 60px; max-width: 1080px; }
+  .main-header { margin-bottom: 20px; }
+  .main-header h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 26px;
+    margin: 0 0 4px;
+  }
+  .main-header .sub { font-size: 13px; color: var(--gray-500); }
+
+  .notices {
+    background: var(--green-pale);
+    border-left: 3px solid var(--green-bright);
+    padding: 10px 16px;
+    margin-bottom: 24px;
+    border-radius: 0 4px 4px 0;
+  }
+  .notices textarea {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--ink);
+    resize: vertical;
+    min-height: 40px;
+    outline: none;
+  }
+
+  /* Table */
+  .table-wrap {
+    background: var(--white);
+    border: 1px solid var(--gray-100);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .grid-row { display: grid; align-items: center; }
+  .grid-row.schedule { grid-template-columns: 28px 1.1fr 1.1fr 130px 1fr 110px 32px; }
+  .grid-row.docs { grid-template-columns: 28px 1.2fr 1.6fr 32px; }
+  .grid-row.references { grid-template-columns: 28px 1fr 1fr 1fr 1fr 32px; }
+
+  .grid-row.head {
+    background: var(--off-white);
+    border-bottom: 1px solid var(--gray-100);
+    font-size: 11px;
+    color: var(--gray-500);
+    font-weight: 600;
+    padding: 10px 12px;
+  }
+  .grid-row.entry { border-bottom: 1px solid var(--gray-100); padding: 6px 12px; }
+  .grid-row.entry:hover { background: var(--off-white); }
+  .grid-row.references.entry { align-items: start; padding-top: 8px; padding-bottom: 8px; }
+  .grid-row textarea.auto-text {
+    resize: none;
+    overflow: hidden;
+    line-height: 1.45;
+    min-height: 36px;
+    white-space: pre-wrap;
+  }
+  .grid-row .idx { font-size: 12px; color: var(--gray-500); }
+  .grid-row input, .grid-row textarea {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    border: none;
+    background: transparent;
+    padding: 8px 6px;
+    outline: none;
+    width: 100%;
+    border-radius: 4px;
+  }
+  .grid-row input:focus { background: var(--green-pale); }
+  .grid-row input.link-input { color: var(--green-bright); }
+
+  .article-cell { display: flex; align-items: center; gap: 6px; overflow: hidden; }
+  .upload-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--white);
+    background: var(--green-bright);
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .upload-btn:hover { background: var(--green-deep); }
+  .file-chip {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    background: var(--off-white);
+    border: 1px solid var(--gray-100);
+    padding: 6px 9px;
+    border-radius: 5px;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 150px;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .file-chip.link-chip { color: var(--green-bright); }
+  .file-chip:hover { border-color: var(--green-bright); }
+  .chip-x {
+    background: none;
+    border: none;
+    color: var(--gray-300);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 2px 4px;
+    flex-shrink: 0;
+  }
+  .chip-x:hover { color: var(--warn); }
+  .chip-x.link-alt {
+    font-size: 11px;
+    color: var(--gray-500);
+    text-decoration: underline;
+    white-space: nowrap;
+  }
+
+  .status-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 5px 9px;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .status-btn.upcoming { background: var(--gray-100); color: var(--gray-500); }
+  .status-btn.soon { background: #EFE7D0; color: #8A6A1F; }
+  .status-btn.overdue { background: #F1DAD3; color: var(--warn); }
+  .status-btn.posted { background: var(--green-pale); color: var(--green-deep); }
+
+  .del-btn {
+    background: none;
+    border: none;
+    color: var(--gray-300);
+    font-size: 16px;
+    cursor: pointer;
+    padding: 4px;
+  }
+  .del-btn:hover { color: var(--warn); }
+
+  .empty-row { padding: 34px 0; text-align: center; color: var(--gray-500); font-size: 13px; }
+
+  .add-row { padding: 12px; border-top: 1px dashed var(--gray-300); }
+  .add-btn {
+    background: none;
+    border: none;
+    color: var(--green-bright);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 4px;
+  }
+  .add-btn:hover { text-decoration: underline; }
+
+  .save-note { font-size: 11px; color: var(--gray-500); margin-top: 10px; min-height: 14px; }
+  .loading { text-align: center; padding: 100px 0; color: var(--gray-500); font-size: 13px; }
+
+  @media (max-width: 820px) {
+    .app-shell { flex-direction: column; }
+    .sidebar { width: 100%; padding: 16px; }
+    .brand-sub { margin-bottom: 14px; }
+    .section-nav { flex-direction: row; margin-bottom: 10px; }
+    .sidebar-divider { display: none; }
+    .month-list { flex-direction: row; overflow-x: auto; }
+    .month-tab { padding: 7px 10px; }
+    .main { padding: 24px 18px 60px; }
+    .grid-row.schedule { grid-template-columns: 20px 1fr 1fr 100px 90px 90px 24px; font-size: 12px; }
+    .grid-row.docs { grid-template-columns: 18px 1fr 1fr 24px; font-size: 12px; }
+    .grid-row.references { grid-template-columns: 18px 1fr 1fr 1fr 1fr 24px; font-size: 12px; }
+  }
+</style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+</head>
+<body>
+<div class="app-shell" id="app">
+  <div class="loading">Loading…</div>
+</div>
+
+<script>
+// ===== FIREBASE CONFIG =====
+const firebaseConfig = {
+  apiKey: "AIzaSyBbt0q-wjdsKQ9eS0wjJWC7eBvDBhQvx4k",
+  authDomain: "ramstreet-c2350.firebaseapp.com",
+  projectId: "ramstreet-c2350",
+  storageBucket: "ramstreet-c2350.firebasestorage.app",
+  messagingSenderId: "450707565730",
+  appId: "1:450707565730:web:3638ca27fd0788899c3bfb"
+};
+// ============================
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const docRef = db.collection('ramstreet').doc('schedule-data');
+
+const MONTHS = [
+  { key: '2026-09', label: 'September', year: 2026 },
+  { key: '2026-10', label: 'October', year: 2026 },
+  { key: '2026-11', label: 'November', year: 2026 },
+  { key: '2026-12', label: 'December', year: 2026 },
+  { key: '2027-01', label: 'January', year: 2027 },
+  { key: '2027-02', label: 'February', year: 2027 },
+  { key: '2027-03', label: 'March', year: 2027 },
+  { key: '2027-04', label: 'April', year: 2027 },
+  { key: '2027-05', label: 'May', year: 2027 },
+];
+
+let state = {
+  notice: 'Welcome! Add your topic, due date, and article link below.',
+  entries: [],
+  docs: [],
+  references: []
+};
+let activeSection = 'schedule'; // 'schedule' | 'docs' | 'references'
+let activeMonth = defaultMonth();
+let saveTimer = null;
+let noticeTimer = null;
+
+const app = document.getElementById('app');
+
+function defaultMonth() {
+  const now = new Date();
+  const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const found = MONTHS.find(m => m.key === key);
+  return found ? found.key : MONTHS[0].key;
+}
+
+function monthKeyOf(dueStr) { return dueStr ? dueStr.slice(0, 7) : null; }
+
+function statusFor(entry) {
+  if (entry.posted) return { label: 'Posted', cls: 'posted' };
+  if (!entry.due) return { label: 'No date', cls: 'upcoming' };
+  const due = new Date(entry.due + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((due - today) / 86400000);
+  if (diff < 0) return { label: 'Overdue', cls: 'overdue' };
+  if (diff <= 3) return { label: 'Due soon', cls: 'soon' };
+  return { label: 'Upcoming', cls: 'upcoming' };
+}
+
+function subscribeState() {
+  docRef.onSnapshot(
+    (snap) => {
+      if (snap.exists) {
+        const data = snap.data();
+        state = {
+          notice: data.notice || state.notice,
+          entries: data.entries || [],
+          docs: data.docs || [],
+          references: data.references || []
+        };
+      }
+      render();
+    },
+    (err) => {
+      console.error('Firestore listen error:', err);
+      flashSave('Could not connect — check your Firebase setup');
+      render();
+    }
+  );
+}
+
+async function saveState() {
+  try {
+    await docRef.set(state);
+    flashSave('Saved');
+  } catch (e) {
+    flashSave('Could not save — try again');
+  }
+}
+function flashSave(msg) {
+  const el = document.getElementById('saveNote');
+  if (!el) return;
+  el.textContent = msg;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => { if (el) el.textContent = ''; }, 1800);
+}
+function debounceSave() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveState, 500);
+}
+
+function setSection(section) { activeSection = section; render(); }
+function setActiveMonth(key) { activeMonth = key; render(); }
+
+/* Schedule entries */
+function addEntry() {
+  const monthInfo = MONTHS.find(m => m.key === activeMonth);
+  state.entries.push({ id: 's' + Date.now().toString(36), name: '', topic: '', due: `${monthInfo.key}-01`, link: '', fileName: '', posted: false });
+  saveState(); render();
+}
+function removeEntry(id) {
+  const e = state.entries.find(e => e.id === id);
+  if (e && e.fileName) {
+    db.collection('ramstreet-files').doc(id).delete().catch(() => {});
+  }
+  state.entries = state.entries.filter(e => e.id !== id);
+  saveState(); render();
+}
+function updateEntry(id, field, value) {
+  const e = state.entries.find(e => e.id === id);
+  if (!e) return;
+  e[field] = value;
+  if (field === 'due') { saveState(); render(); } else debounceSave();
+}
+
+const MAX_UPLOAD_BYTES = 350 * 1024; // ~350KB raw keeps us safely under Firestore's ~1MB document cap after base64 + overhead
+
+function handleFileUpload(entryId, inputEl) {
+  const file = inputEl.files && inputEl.files[0];
+  if (!file) return;
+  if (file.size > MAX_UPLOAD_BYTES) {
+    alert(`That file is too big (${Math.round(file.size/1024)}KB). Files need to be under ${Math.round(MAX_UPLOAD_BYTES/1024)}KB — try "Paste link instead" for larger files (e.g. anything with images).`);
+    inputEl.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const dataUrl = reader.result; // "data:mime;base64,XXXX"
+    const base64 = dataUrl.slice(dataUrl.indexOf(',') + 1);
+    const mimeType = file.type || 'application/octet-stream';
+    try {
+      await db.collection('ramstreet-files').doc(entryId).set({ filename: file.name, mimeType, base64 });
+      const e = state.entries.find(e => e.id === entryId);
+      if (e) { e.fileName = file.name; e.link = ''; }
+      await saveState();
+      render();
+    } catch (err) {
+      alert('Upload failed — try again, or use "Paste link instead."');
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+async function downloadArticleFile(entryId, filename) {
+  try {
+    const snap = await db.collection('ramstreet-files').doc(entryId).get();
+    if (!snap.exists) { alert('Could not find that file.'); return; }
+    const { mimeType, base64 } = snap.data();
+    const a = document.createElement('a');
+    a.href = `data:${mimeType};base64,${base64}`;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } catch (err) {
+    alert('Could not open that file.');
+  }
+}
+
+async function removeArticleFile(entryId) {
+  const e = state.entries.find(e => e.id === entryId);
+  if (!e) return;
+  try { await db.collection('ramstreet-files').doc(entryId).delete(); } catch (err) { /* may already be gone */ }
+  e.fileName = '';
+  await saveState();
+  render();
+}
+
+function promptLink(entryId) {
+  const value = prompt('Paste a link to the article (Google Doc, Drive, etc.):');
+  if (value === null) return;
+  const e = state.entries.find(e => e.id === entryId);
+  if (!e) return;
+  if (e.fileName) {
+    db.collection('ramstreet-files').doc(entryId).delete().catch(() => {});
+  }
+  e.link = value.trim();
+  e.fileName = '';
+  saveState(); render();
+}
+
+function toggleStatus(id) {
+  const e = state.entries.find(e => e.id === id);
+  if (!e) return;
+  e.posted = !e.posted; saveState(); render();
+}
+
+/* Docs */
+function addDoc() {
+  state.docs.push({ id: 'd' + Date.now().toString(36), member: '', link: '' });
+  saveState(); render();
+}
+function removeDoc(id) { state.docs = state.docs.filter(d => d.id !== id); saveState(); render(); }
+function updateDoc(id, field, value) {
+  const d = state.docs.find(d => d.id === id);
+  if (!d) return;
+  d[field] = value;
+  debounceSave();
+}
+
+/* References */
+function addReference() {
+  state.references.push({ id: 'r' + Date.now().toString(36), member: '', contactName: '', contactInfo: '', contactEmail: '' });
+  saveState(); render();
+}
+function removeReference(id) { state.references = state.references.filter(r => r.id !== id); saveState(); render(); }
+function updateReference(id, field, value) {
+  const r = state.references.find(r => r.id === id);
+  if (!r) return;
+  r[field] = value;
+  debounceSave();
+}
+
+function debounceUpdateNotice(value) {
+  state.notice = value;
+  clearTimeout(noticeTimer);
+  noticeTimer = setTimeout(saveState, 500);
+}
+
+function escAttr(str) { return (str || '').replace(/"/g, '&quot;'); }
+function escHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str || '';
+  return d.innerHTML;
+}
+function autoResizeTextarea(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+function renderScheduleBody() {
+  const monthEntries = state.entries.filter(e => monthKeyOf(e.due) === activeMonth);
+  const monthInfo = MONTHS.find(m => m.key === activeMonth);
+
+  const rows = monthEntries.map((e, i) => {
+    const st = statusFor(e);
+    let articleCell;
+    if (e.fileName) {
+      articleCell = `
+        <div class="article-cell">
+          <button class="file-chip" onclick="downloadArticleFile('${e.id}','${escAttr(e.fileName)}')" title="Download">📄 ${escHtml(e.fileName)}</button>
+          <button class="chip-x" onclick="removeArticleFile('${e.id}')" title="Remove file">×</button>
+        </div>`;
+    } else if (e.link) {
+      articleCell = `
+        <div class="article-cell">
+          <a class="file-chip link-chip" href="${escAttr(e.link)}" target="_blank" rel="noopener">🔗 View link</a>
+          <button class="chip-x" onclick="promptLink('${e.id}')" title="Edit link">✎</button>
+        </div>`;
+    } else {
+      articleCell = `
+        <div class="article-cell">
+          <label class="upload-btn">
+            Upload
+            <input type="file" accept=".doc,.docx,.pdf,.txt" style="display:none" onchange="handleFileUpload('${e.id}', this)">
+          </label>
+          <button class="chip-x link-alt" onclick="promptLink('${e.id}')" title="Paste link instead">or link</button>
+        </div>`;
+    }
+    return `
+      <div class="grid-row schedule entry">
+        <div class="idx">${i + 1}</div>
+        <input value="${escAttr(e.name)}" placeholder="Member name" oninput="updateEntry('${e.id}','name',this.value)">
+        <input value="${escAttr(e.topic)}" placeholder="Topic" oninput="updateEntry('${e.id}','topic',this.value)">
+        <input type="date" value="${e.due || ''}" onchange="updateEntry('${e.id}','due',this.value)">
+        ${articleCell}
+        <button class="status-btn ${st.cls}" onclick="toggleStatus('${e.id}')">${st.label}</button>
+        <button class="del-btn" onclick="removeEntry('${e.id}')" title="Remove row">×</button>
+      </div>`;
+  }).join('');
+
+  return `
+    <div class="main-header">
+      <h1>${monthInfo.label} ${monthInfo.year}</h1>
+      <div class="sub">${monthEntries.length} ${monthEntries.length === 1 ? 'article' : 'articles'} scheduled</div>
+    </div>
+    <div class="notices">
+      <textarea oninput="debounceUpdateNotice(this.value)">${state.notice}</textarea>
+    </div>
+    <div class="table-wrap">
+      <div class="grid-row schedule head">
+        <div></div><div>Member</div><div>Topic</div><div>Due date</div><div>Article</div><div>Status</div><div></div>
+      </div>
+      ${monthEntries.length ? rows : `<div class="empty-row">No articles scheduled for ${monthInfo.label} yet.</div>`}
+      <div class="add-row"><button class="add-btn" onclick="addEntry()">+ Add article</button></div>
+    </div>
+    <div class="save-note" id="saveNote"></div>
+  `;
+}
+
+function renderDocsBody() {
+  const rows = state.docs.map((d, i) => `
+    <div class="grid-row docs entry">
+      <div class="idx">${i + 1}</div>
+      <input value="${escAttr(d.member)}" placeholder="Member name" oninput="updateDoc('${d.id}','member',this.value)">
+      <input class="link-input" value="${escAttr(d.link)}" placeholder="Paste link" oninput="updateDoc('${d.id}','link',this.value)">
+      <button class="del-btn" onclick="removeDoc('${d.id}')" title="Remove row">×</button>
+    </div>`).join('');
+
+  return `
+    <div class="main-header">
+      <h1>Important Docs</h1>
+      <div class="sub">${state.docs.length} ${state.docs.length === 1 ? 'document' : 'documents'} linked</div>
+    </div>
+    <div class="table-wrap">
+      <div class="grid-row docs head">
+        <div></div><div>Member name</div><div>Link</div><div></div>
+      </div>
+      ${state.docs.length ? rows : `<div class="empty-row">No documents added yet.</div>`}
+      <div class="add-row"><button class="add-btn" onclick="addDoc()">+ Add document</button></div>
+    </div>
+    <div class="save-note" id="saveNote"></div>
+  `;
+}
+
+function renderReferencesBody() {
+  const rows = state.references.map((r, i) => `
+    <div class="grid-row references entry">
+      <div class="idx">${i + 1}</div>
+      <input value="${escAttr(r.member)}" placeholder="Member name" oninput="updateReference('${r.id}','member',this.value)">
+      <input value="${escAttr(r.contactName)}" placeholder="Contact name" oninput="updateReference('${r.id}','contactName',this.value)">
+      <textarea class="auto-text" rows="1" placeholder="Contact information" oninput="updateReference('${r.id}','contactInfo',this.value); autoResizeTextarea(this)">${escHtml(r.contactInfo)}</textarea>
+      <input value="${escAttr(r.contactEmail)}" placeholder="Contact email" oninput="updateReference('${r.id}','contactEmail',this.value)">
+      <button class="del-btn" onclick="removeReference('${r.id}')" title="Remove row">×</button>
+    </div>`).join('');
+
+  return `
+    <div class="main-header">
+      <h1>References</h1>
+      <div class="sub">${state.references.length} ${state.references.length === 1 ? 'contact' : 'contacts'} listed</div>
+    </div>
+    <div class="table-wrap">
+      <div class="grid-row references head">
+        <div></div><div>Member name</div><div>Contact name</div><div>Contact information</div><div>Contact email</div><div></div>
+      </div>
+      ${state.references.length ? rows : `<div class="empty-row">No references added yet.</div>`}
+      <div class="add-row"><button class="add-btn" onclick="addReference()">+ Add reference</button></div>
+    </div>
+    <div class="save-note" id="saveNote"></div>
+  `;
+}
+
+function render() {
+  const sidebarTabs = MONTHS.map(m => {
+    const count = state.entries.filter(e => monthKeyOf(e.due) === m.key).length;
+    return `<button class="month-tab ${m.key === activeMonth ? 'active' : ''}" onclick="setActiveMonth('${m.key}')">
+      ${m.label} '${String(m.year).slice(2)}<span class="n">${count || ''}</span>
+    </button>`;
+  }).join('');
+
+  app.innerHTML = `
+    <div class="sidebar">
+      <div class="brand">Ram Street</div>
+      <div class="brand-sub">Club Hub</div>
+
+      <div class="section-nav">
+        <button class="section-tab ${activeSection === 'schedule' ? 'active' : ''}" onclick="setSection('schedule')">Article Scheduling</button>
+        <button class="section-tab ${activeSection === 'docs' ? 'active' : ''}" onclick="setSection('docs')">Important Docs</button>
+        <button class="section-tab ${activeSection === 'references' ? 'active' : ''}" onclick="setSection('references')">References</button>
+      </div>
+
+      ${activeSection === 'schedule' ? `
+        <div class="sidebar-divider"></div>
+        <div class="month-list">${sidebarTabs}</div>
+      ` : ''}
+    </div>
+    <div class="main">
+      ${activeSection === 'schedule' ? renderScheduleBody() : activeSection === 'docs' ? renderDocsBody() : renderReferencesBody()}
+    </div>
+  `;
+  document.querySelectorAll('.auto-text').forEach(autoResizeTextarea);
+}
+
+subscribeState();
+</script>
+</body>
+</html>
