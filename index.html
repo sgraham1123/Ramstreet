@@ -244,6 +244,84 @@
     font-size: 13px; color: #2A5038; display: flex; align-items: center; gap: 8px;
   }
 
+  /* ---- Standing meeting card ---- */
+  .standing-card {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 20px; margin-bottom: 20px;
+  }
+  .standing-header {
+    display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+  }
+  .standing-badge {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+    color: var(--green); background: var(--green-light); border-radius: 6px; padding: 3px 9px;
+  }
+  .standing-fields {
+    display: grid; grid-template-columns: 1.2fr 0.8fr 1.4fr 1.4fr; gap: 12px;
+  }
+  .standing-field-label {
+    font-size: 11px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;
+  }
+  .standing-input {
+    font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text);
+    border: none; background: var(--bg-page); padding: 7px 10px;
+    border-radius: 6px; width: 100%; outline: none; transition: background 0.1s;
+  }
+  .standing-input:focus { background: var(--green-light); }
+
+  /* ---- Event cards ---- */
+  .events-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+  .event-card {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; display: grid;
+    grid-template-columns: 60px 1fr 30px; gap: 14px; align-items: start;
+    transition: background 0.08s;
+  }
+  .event-card:hover { background: var(--bg-hover); }
+  .event-card.event-past { opacity: 0.4; }
+  .event-date-badge { text-align: center; padding-top: 3px; }
+  .event-date-month {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.5px; color: var(--green); line-height: 1.4;
+  }
+  .event-date-day { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; }
+  .event-date-empty { font-size: 11px; color: var(--text-3); padding-top: 6px; }
+  .event-body { display: flex; flex-direction: column; gap: 3px; }
+  .event-title-input {
+    font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
+    color: var(--text); border: none; background: transparent;
+    padding: 2px 4px; border-radius: 4px; width: 100%; outline: none;
+  }
+  .event-title-input:focus { background: var(--green-light); }
+  .event-title-input::placeholder { font-weight: 500; color: var(--text-3); }
+  .event-meta-row { display: flex; gap: 4px; flex-wrap: wrap; }
+  .event-meta-input {
+    font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-2);
+    border: none; background: transparent; padding: 2px 4px;
+    border-radius: 4px; outline: none; min-width: 80px;
+  }
+  .event-meta-input:focus { background: var(--green-light); }
+  .event-desc-input {
+    font-family: 'Inter', sans-serif; font-size: 12px; color: var(--text-2);
+    border: none; background: transparent; padding: 2px 4px; border-radius: 4px;
+    width: 100%; outline: none; resize: none; line-height: 1.45; min-height: 20px;
+    white-space: pre-wrap; overflow: hidden;
+  }
+  .event-desc-input:focus { background: var(--green-light); }
+  .event-link-input {
+    font-family: 'Inter', sans-serif; font-size: 12px; color: #3A6B50;
+    border: none; background: transparent; padding: 2px 4px;
+    border-radius: 4px; width: 100%; outline: none;
+  }
+  .event-link-input:focus { background: var(--green-light); }
+  .events-section-label {
+    font-size: 11px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.5px;
+    margin: 20px 0 8px;
+  }
+  .events-section-label:first-child { margin-top: 0; }
+
   .loading { text-align: center; padding: 120px 0; color: var(--text-3); font-size: 13px; }
 
   @media (max-width: 820px) {
@@ -275,6 +353,7 @@ const entriesCol   = db.collection('ramstreet-entries');
 const docsCol      = db.collection('ramstreet-docs-tab');
 const referencesCol = db.collection('ramstreet-references');
 const alumniCol    = db.collection('ramstreet-alumni');
+const eventsCol    = db.collection('ramstreet-events');
 const legacyRef    = db.collection('ramstreet').doc('schedule-data');
 
 const MAX_UPLOAD_BYTES = 350 * 1024;
@@ -300,7 +379,8 @@ const MONTHS = [
 let state = {
   notice: 'Welcome! Add your topic, due date, and article link below.',
   members: DEFAULT_MEMBERS.slice(),
-  entries: [], docs: [], references: [], alumni: [],
+  entries: [], docs: [], references: [], alumni: [], events: [],
+  standingMeeting: { day: '', time: '', location: '', note: '' },
   passcode: ''
 };
 let activeSection = 'schedule';
@@ -436,6 +516,7 @@ function subscribeCollections() {
       state.notice  = (d.notice !== undefined) ? d.notice : state.notice;
       state.members = (d.members && d.members.length) ? d.members : DEFAULT_MEMBERS.slice();
       state.passcode = d.passcode || 'ramstreet2026';
+      state.standingMeeting = d.standingMeeting || { day: '', time: '', location: '', note: '' };
     }
     render();
   }, (err) => { console.error(err); flashSave('Could not connect — check your Firebase setup'); render(); });
@@ -457,6 +538,11 @@ function subscribeCollections() {
 
   alumniCol.onSnapshot((snap) => {
     state.alumni = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    render();
+  }, (err) => console.error(err));
+
+  eventsCol.onSnapshot((snap) => {
+    state.events = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     render();
   }, (err) => console.error(err));
 }
@@ -710,6 +796,48 @@ function debounceUpdateNotice(value) {
   debounceField('notice', () => reportSave(metaRef.set({ notice: state.notice }, { merge: true })));
 }
 
+/* ---------- Standing meeting ---------- */
+function updateStanding(field, value) {
+  state.standingMeeting[field] = value;
+  debounceField('standing:' + field, () =>
+    reportSave(metaRef.set({ standingMeeting: state.standingMeeting }, { merge: true }))
+  );
+}
+
+/* ---------- Events ---------- */
+function saveEvent(e) {
+  const { id, ...fields } = e;
+  fields.updatedAt = firebase.firestore.FieldValue.serverTimestamp();
+  reportSave(eventsCol.doc(id).set(fields, { merge: true }));
+}
+function addEvent() {
+  const id = 'ev' + Date.now().toString(36);
+  reportSave(eventsCol.doc(id).set({ title: '', date: '', time: '', location: '', description: '', link: '', updatedAt: firebase.firestore.FieldValue.serverTimestamp() }));
+}
+function removeEvent(id) {
+  if (!confirm('Remove this event? This can\'t be undone.')) return;
+  eventsCol.doc(id).delete().catch(() => {});
+}
+function updateEvent(id, field, value) {
+  const e = state.events.find(e => e.id === id);
+  if (!e) return; e[field] = value;
+  if (field === 'date') { saveEvent(e); render(); }
+  else { debounceField(id + ':' + field, () => saveEvent(e)); }
+}
+
+function eventDateBadge(dateStr) {
+  if (!dateStr) return `<div class="event-date-badge"><div class="event-date-empty">No<br>date</div></div>`;
+  const parts = dateStr.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const month = months[parseInt(parts[1], 10) - 1] || '';
+  const day = parseInt(parts[2], 10);
+  return `<div class="event-date-badge"><div class="event-date-month">${month}</div><div class="event-date-day">${day}</div></div>`;
+}
+function todayStr() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+}
+
 /* ---------- Render: Schedule ---------- */
 function renderScheduleBody() {
   const rows = getMonthRows(activeMonth);
@@ -888,6 +1016,100 @@ function saveAlumById(id) {
   render();
 }
 
+/* ---------- Render: Events ---------- */
+function renderEventsBody() {
+  const sm = state.standingMeeting;
+  const today = todayStr();
+
+  const sorted = state.events.slice().sort((a, b) => {
+    if (!a.date && !b.date) return 0;
+    if (!a.date) return 1; if (!b.date) return -1;
+    return a.date.localeCompare(b.date);
+  });
+  const upcoming = sorted.filter(e => !e.date || e.date >= today);
+  const past     = sorted.filter(e => e.date && e.date < today).reverse();
+
+  function eventCard(e) {
+    const descHtml = e.description
+      ? `<textarea class="event-desc-input auto-text" rows="1" placeholder="Description" oninput="updateEvent('${e.id}','description',this.value); autoResizeTextarea(this)">${escHtml(e.description)}</textarea>`
+      : `<textarea class="event-desc-input auto-text" rows="1" placeholder="Description (optional)" oninput="updateEvent('${e.id}','description',this.value); autoResizeTextarea(this)"></textarea>`;
+    const linkHtml = e.link
+      ? `<input class="event-link-input" value="${escAttr(e.link)}" placeholder="Link (RSVP, Zoom, etc.)" oninput="updateEvent('${e.id}','link',this.value)">`
+      : `<input class="event-link-input" value="" placeholder="Link (RSVP, Zoom, etc.)" oninput="updateEvent('${e.id}','link',this.value)">`;
+    return `
+      <div class="event-card" title="${formatRelative(e.updatedAt)}">
+        ${eventDateBadge(e.date)}
+        <div class="event-body">
+          <input class="event-title-input" value="${escAttr(e.title)}" placeholder="Event title" oninput="updateEvent('${e.id}','title',this.value)">
+          <div class="event-meta-row">
+            <input class="event-meta-input" type="date" value="${e.date || ''}" onchange="updateEvent('${e.id}','date',this.value)">
+            <input class="event-meta-input" value="${escAttr(e.time)}" placeholder="Time" oninput="updateEvent('${e.id}','time',this.value)">
+            <input class="event-meta-input" value="${escAttr(e.location)}" placeholder="Location" oninput="updateEvent('${e.id}','location',this.value)">
+          </div>
+          ${descHtml}
+          ${linkHtml}
+        </div>
+        <button class="del-btn" onclick="removeEvent('${e.id}')" title="Remove event">×</button>
+      </div>`;
+  }
+
+  const upcomingHtml = upcoming.length
+    ? upcoming.map(eventCard).join('')
+    : `<div class="empty-row">No upcoming events — add one below.</div>`;
+
+  const pastSection = past.length ? `
+    <div class="events-section-label">Past</div>
+    <div class="events-list" style="opacity:0.45">
+      ${past.map(e => `
+        <div class="event-card" title="${formatRelative(e.updatedAt)}">
+          ${eventDateBadge(e.date)}
+          <div class="event-body">
+            <div style="font-size:14px;font-weight:600;color:var(--text);padding:2px 4px">${escHtml(e.title) || '—'}</div>
+            <div class="event-meta-row" style="font-size:12px;color:var(--text-2);padding:2px 4px">
+              ${e.time ? escHtml(e.time) : ''}${e.time && e.location ? ' · ' : ''}${e.location ? escHtml(e.location) : ''}
+            </div>
+          </div>
+          <button class="del-btn" onclick="removeEvent('${e.id}')" title="Remove event">×</button>
+        </div>`).join('')}
+    </div>` : '';
+
+  return `
+    <div class="page-header">
+      <h1 class="page-title">Meetings &amp; Events</h1>
+      <div class="page-sub">${upcoming.length} upcoming</div>
+    </div>
+
+    <div class="standing-card">
+      <div class="standing-header">
+        <span class="standing-badge">Standing Meeting</span>
+      </div>
+      <div class="standing-fields">
+        <div>
+          <div class="standing-field-label">Day / Frequency</div>
+          <input class="standing-input" value="${escAttr(sm.day)}" placeholder="Every Tuesday" oninput="updateStanding('day',this.value)">
+        </div>
+        <div>
+          <div class="standing-field-label">Time</div>
+          <input class="standing-input" value="${escAttr(sm.time)}" placeholder="7:00 PM" oninput="updateStanding('time',this.value)">
+        </div>
+        <div>
+          <div class="standing-field-label">Location</div>
+          <input class="standing-input" value="${escAttr(sm.location)}" placeholder="Room 204 or Zoom link" oninput="updateStanding('location',this.value)">
+        </div>
+        <div>
+          <div class="standing-field-label">Note</div>
+          <input class="standing-input" value="${escAttr(sm.note)}" placeholder="Optional note" oninput="updateStanding('note',this.value)">
+        </div>
+      </div>
+    </div>
+
+    <div class="events-section-label">Upcoming</div>
+    <div class="events-list">${upcomingHtml}</div>
+    <div class="db-footer"><button class="add-btn" onclick="addEvent()">+ Add event</button></div>
+
+    ${pastSection}`;
+}
+
 /* ---------- Render ---------- */
 function render() {
   document.body.classList.toggle('view-only', !isUnlocked);
@@ -918,6 +1140,7 @@ function render() {
         <button class="nav-tab ${activeSection === 'docs' ? 'active' : ''}" onclick="setSection('docs')">Important Docs</button>
         <button class="nav-tab ${activeSection === 'references' ? 'active' : ''}" onclick="setSection('references')">References</button>
         <button class="nav-tab ${activeSection === 'roster' ? 'active' : ''}" onclick="setSection('roster')">Club Roster</button>
+        <button class="nav-tab ${activeSection === 'events' ? 'active' : ''}" onclick="setSection('events')">Meetings &amp; Events</button>
         ${isUnlocked ? `<button class="nav-tab nav-tab-alumni ${activeSection === 'alumni' ? 'active' : ''}" onclick="setSection('alumni')">Alumni Network</button>` : ''}
       </div>
       ${activeSection === 'schedule' ? `<div class="month-bar">${monthChipsHtml}</div>` : ''}
@@ -925,6 +1148,7 @@ function render() {
         : activeSection === 'docs' ? renderDocsBody()
         : activeSection === 'references' ? renderReferencesBody()
         : activeSection === 'roster' ? renderRosterBody()
+        : activeSection === 'events' ? renderEventsBody()
         : renderAlumniBody()}
     </div>`;
   document.querySelectorAll('.auto-text').forEach(autoResizeTextarea);
