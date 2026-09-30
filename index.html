@@ -133,8 +133,17 @@
   .grid-row.references.entry { align-items: start; padding-top: 10px; padding-bottom: 10px; }
   .grid-row .idx { font-size: 11px; color: var(--text-3); cursor: help; }
 
-  .member-cell { display: flex; align-items: center; gap: 7px; }
+  .member-cell { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 7px; }
   .member-name-locked { font-size: 13px; color: var(--text); }
+  .progress-badge {
+    font-size: 11px; font-weight: 600; color: var(--green); background: var(--green-light);
+    border-radius: 5px; padding: 2px 7px; white-space: nowrap;
+  }
+  .topic-cell { display: flex; flex-direction: column; min-width: 0; }
+  .slot-tag {
+    font-size: 10px; font-weight: 600; color: var(--text-3);
+    text-transform: uppercase; letter-spacing: 0.3px; padding: 3px 6px 0;
+  }
   .due-cell { display: flex; align-items: center; gap: 2px; position: relative; min-width: 0; overflow: hidden; }
   .due-cell input { min-width: 0; flex-shrink: 1; }
   .avatar {
@@ -433,6 +442,14 @@ const STATUS_DEFS = [
 ];
 function statusMeta(key) { return STATUS_DEFS.find(s => s.key === key) || STATUS_DEFS[0]; }
 function effectiveStatus(e) { return e.status || (e.posted ? 'published' : 'not_started'); }
+function effectiveSlot(e) { return e.slot || 1; }
+function publishedCountFor(name, monthKey) {
+  return state.entries.filter(e =>
+    e.name === name &&
+    (e.month || monthKeyOf(e.due)) === monthKey &&
+    effectiveStatus(e) === 'published'
+  ).length;
+}
 
 /* ---------- Passcode / lock ---------- */
 function unlockPrompt() {
@@ -574,16 +591,37 @@ function removeMember(name) {
 /* ---------- Schedule entries ---------- */
 function getMonthRows(monthKey) {
   const real = state.entries.filter(e => (e.month || monthKeyOf(e.due)) === monthKey);
-  real.sort((a, b) => {
-    if (!a.due && !b.due) return 0;
-    if (!a.due) return 1; if (!b.due) return -1;
-    return a.due.localeCompare(b.due);
+  const claimed = new Set(real.map(e => e.name + '||' + effectiveSlot(e)));
+  const placeholders = [];
+  state.members.forEach(m => {
+    [1, 2].forEach(slot => {
+      if (!claimed.has(m + '||' + slot)) {
+        placeholders.push({
+          id: `ph||${monthKey}||${slot}||${m}`, name: m, slot, topic: '', due: '', link: '', fileName: '', status: 'not_started', month: monthKey
+        });
+      }
+    });
   });
-  const claimed = new Set(real.map(e => e.name));
-  const placeholders = state.members.filter(m => !claimed.has(m)).map(m => ({
-    id: `ph||${monthKey}||${m}`, name: m, topic: '', due: '', link: '', fileName: '', status: 'not_started', month: monthKey
-  }));
-  return real.concat(placeholders);
+  const all = real.concat(placeholders);
+
+  // Group each member's rows together (slot 1 above slot 2), ordered by whichever
+  // of the two due dates is soonest; members with no due dates sort to the bottom.
+  const byMember = new Map();
+  all.forEach(e => {
+    if (!byMember.has(e.name)) byMember.set(e.name, []);
+    byMember.get(e.name).push(e);
+  });
+  const groups = Array.from(byMember.values()).map(rows => {
+    rows.sort((a, b) => effectiveSlot(a) - effectiveSlot(b));
+    const dues = rows.map(r => r.due).filter(Boolean).sort();
+    return { rows, soonest: dues.length ? dues[0] : null };
+  });
+  groups.sort((a, b) => {
+    if (!a.soonest && !b.soonest) return 0;
+    if (!a.soonest) return 1; if (!b.soonest) return -1;
+    return a.soonest.localeCompare(b.soonest);
+  });
+  return groups.flatMap(g => g.rows);
 }
 function getOrCreateEntry(id) {
   let e = state.entries.find(x => x.id === id);
@@ -591,8 +629,9 @@ function getOrCreateEntry(id) {
   if (id.startsWith('ph||')) {
     const parts = id.split('||');
     const monthKey = parts[1];
-    const name = parts.slice(2).join('||');
-    e = { id, name, topic: '', due: '', link: '', fileName: '', status: 'not_started', month: monthKey };
+    const slot = parseInt(parts[2], 10) || 1;
+    const name = parts.slice(3).join('||');
+    e = { id, name, slot, topic: '', due: '', link: '', fileName: '', status: 'not_started', month: monthKey };
     state.entries.push(e);
     return e;
   }
@@ -859,11 +898,15 @@ function renderScheduleBody() {
       articleCell = `<div class="article-cell"><label class="upload-btn">Upload<input type="file" accept=".doc,.docx,.pdf,.txt" style="display:none" onchange="handleFileUpload('${e.id}', this)"></label><button class="chip-x link-alt" onclick="promptLink('${e.id}')">or link</button></div>`;
     }
     const delBtn = isReal(e.id) ? `<button class="del-btn" onclick="removeEntry('${e.id}')" title="Remove row">×</button>` : `<span></span>`;
+    const isFirstOfGroup = (i === 0 || rows[i-1].name !== e.name);
+    const progressBadge = isFirstOfGroup
+      ? `<span class="progress-badge">${publishedCountFor(e.name, activeMonth)}/2 Published</span>` : '';
+    const slotTag = `<span class="slot-tag">Article ${effectiveSlot(e)}</span>`;
     return `
       <div class="grid-row schedule entry">
         <div class="idx" title="${formatRelative(e.updatedAt)}">${i+1}</div>
-        <div class="member-cell">${avatarHtml(e.name)}<span class="member-name-locked">${escHtml(e.name) || '—'}</span></div>
-        <input value="${escAttr(e.topic)}" placeholder="Topic" oninput="updateEntry('${e.id}','topic',this.value)">
+        <div class="member-cell">${avatarHtml(e.name)}<span class="member-name-locked">${escHtml(e.name) || '—'}</span>${progressBadge}</div>
+        <div class="topic-cell">${slotTag}<input value="${escAttr(e.topic)}" placeholder="Topic" oninput="updateEntry('${e.id}','topic',this.value)"></div>
         <div class="due-cell"><input type="date" value="${e.due || ''}" onchange="updateEntry('${e.id}','due',this.value)">${e.due ? `<button class="chip-x" onclick="clearDue('${e.id}')" title="Clear date">×</button>` : ''}</div>
         ${articleCell}
         ${statusSelect}
@@ -874,7 +917,7 @@ function renderScheduleBody() {
   return `
     <div class="page-header">
       <h1 class="page-title">${monthInfo.label} ${monthInfo.year}</h1>
-      <div class="page-sub">${rows.length} members</div>
+      <div class="page-sub">${new Set(rows.map(r => r.name)).size} members · ${rows.length} articles</div>
     </div>
     <div class="notice-wrap">
       <span class="notice-icon">📌</span>
